@@ -4,12 +4,9 @@ import processing.core.*;
 
 public class Bulb {
 	float x, y;
-	int colorOn = 0;
-	int colorOff = 255;
 	PImage bulbOn;
 	PImage bulbOff;
-	int fadeOutTime; 
-	int height, width;
+	int width, height;
 	
 	Bulb(PApplet parent, PImage bulbOn, PImage bulbOff)	{
 		this.bulbOn = bulbOn;
@@ -18,17 +15,12 @@ public class Bulb {
 		height = bulbOn.height;
 	}
 
-	Bulb(Bulb bulb)	{
-		bulbOn = bulb.bulbOn;
-		bulbOff = bulb.bulbOff;
-	}
-
-	void setLocation(float x, float y)	{
+	Bulb(Bulb bulb, int x, int y) {
+		this.bulbOn = bulb.bulbOn;
+		this.bulbOff = bulb.bulbOff;
 		this.x = x;
 		this.y = y;
 	}
-	
-
 }
 
 

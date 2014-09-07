@@ -1,17 +1,21 @@
 package LEDPanel;
 
 public class LEDAnimation {
-	Vector location;
 	Vector velocity; 
 	LEDObject ledObject; 
 	
-	LEDAnimation(LEDObject ledObject, Vector start, Vector velocity) {
-		this.location = start;
+	public LEDAnimation(LEDObject ledObject, Vector startLocation, Vector velocity) {
 		this.velocity = velocity;
-		this.ledObject = ledObject;  
+		this.ledObject = ledObject; 
+		initialize(startLocation);
 	}
 	
-	void update() {
+	private void initialize(Vector startLocation) {
+		for(Vector ledVector : ledObject.onOffArray)
+			ledVector.add(startLocation);
+	}
+	
+	public void update() {
 		for(Vector ledVector : ledObject.onOffArray)
 			ledVector.add(velocity);
 	}

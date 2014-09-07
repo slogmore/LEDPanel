@@ -1,4 +1,5 @@
 package LEDPanel;
+import pixelated.*;
 import processing.core.*;
 
 public class Main extends PApplet
@@ -9,25 +10,29 @@ public class Main extends PApplet
 	LEDAnimation ledAnimation1, ledAnimation2;
 	LEDObject ledTextObject;
 	
+	PImage busImage = loadImage("../images/bus.png");
+	PImage on = loadImage("../images/on.png");
+	PImage off = loadImage("../images/off.png");
+	
 	public void setup() {
-	  size(1000, 500);
-	 
-	  bulb = new Bulb(this, loadImage("on1.png"), loadImage("off1.png"));
-	  ledObject = new LEDObject();
-	  ledObject.testSet();
-	  ledTextObject = new LEDTextObject(this, "Here", "Times New Roman", 12);
-	  
-	  ledAnimation1 = new LEDAnimation(ledObject, new Vector(0, 0), new Vector(0.1, 0.1));
-	  ledAnimation2 = new LEDAnimation(ledTextObject, new Vector(0, 0), new Vector(0.1, 0.0));
-	  
-	  ledSurface = new LEDSurface(this, bulb, new Vector(50, 100), 200, 40);
+	  size(600, 600);
+      bulb = new Bulb(this, on, off);
+      frameRate(24);
+      ledSurface = new LEDSurface(this, bulb, new Vector(145, 45), 100, 15);
+    
+      PFont testFont = createFont("Times New Roman", 140);
+      PixelatedText pixelatedText = new PixelatedText(this, testFont, color(200, 150, 0), "Valerie's Butt");				
+      pixelatedText.setResolution(10);
+      pixelatedText.setPixelationTolerance(0.5f);
+	  ledTextObject = new LEDTextObject(this, pixelatedText);
+	  ledAnimation1 = new LEDAnimation(ledTextObject, new Vector(100, 1), new Vector(-0.2, 0.0));
 	  ledSurface.addAnimation(ledAnimation1);
-	  ledSurface.addAnimation(ledAnimation2);
 	}
 
 	public void draw() {
 		background(255);
 		ledSurface.drawSurface();
+		image(busImage, 0, 0);
 	}
 
 	public static void main(String _args[])	{

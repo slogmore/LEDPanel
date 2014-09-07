@@ -1,35 +1,49 @@
 package LEDPanel;
 import java.util.ArrayList;
-
 import processing.core.PApplet;
+import processing.core.PGraphics;
 
 public class LEDSurface {
-	ArrayList<LEDAnimation> ledAnimations; 
-	Vector location;
-	Bulb [][] bulbs;
-	int width, height; 
-	PApplet p; 
+	private ArrayList<LEDAnimation> ledAnimations; 
+	private Vector location;
+	private Bulb [][] bulbs;
+	private Dimensions bulbDim;
+	private Dimensions bulbGridDim;
+	private Dimensions pixelGridDim;
+	private PApplet parent; 
+	private PGraphics bulbSurface;
 	
-	LEDSurface(PApplet p, Bulb bulb, Vector location, int width, int height) { 
-		this.p = p;
+	public LEDSurface(PApplet parent, Bulb bulb, Vector location, int width, int height) { 
+		this.parent = parent;
 		this.location = location;
-		this.width = width;
-		this.height = height;
 		ledAnimations = new ArrayList<LEDAnimation>();
-		buildSurface(bulb, width, height); 
+		
+		initializeDim(bulb, width, height); 
+		buildBulbArray(bulb);
+		buildBulbBackgroundImage();
 	}
 	
-	void buildSurface(Bulb bulb, int width, int height)	{
-		bulbs = new Bulb[width][height];
-		float xLoc, yLoc; 
-		for(int row = 0; row < height; row++) {
-			for(int col = 0; col < width; col++) {
-				xLoc = (col * bulb.width);
-				yLoc = (row * bulb.height);
-				bulbs[col][row] = new Bulb(bulb);
-				bulbs[col][row].setLocation(xLoc, yLoc);
-			}
-		}
+	private void initializeDim(Bulb bulb, int width, int height) {
+		bulbDim = new Dimensions(bulb.width, bulb.height);
+		pixelGridDim = new Dimensions(width * bulb.width, height * bulb.height);
+		bulbGridDim = new Dimensions(width, height);
+	}
+	
+	private void buildBulbArray(Bulb bulb)	{
+		int xLoc, yLoc; 
+		bulbs = new Bulb[bulbGridDim.width][bulbGridDim.height];
+		for(int row = 0; row < bulbGridDim.height; row++)
+			for(int col = 0; col < bulbGridDim.width; col++)
+				bulbs[col][row] = new Bulb(bulb, col * bulb.width, row * bulb.height);
+	}
+	
+	private void buildBulbBackgroundImage() {
+		bulbSurface = parent.createGraphics(pixelGridDim.width, pixelGridDim.height, parent.JAVA2D);
+		bulbSurface.beginDraw();
+		for(int row = 0; row < bulbGridDim.height; row++)
+			for(int col = 0; col < bulbGridDim.width; col++)
+				bulbSurface.image(bulbs[col][row].bulbOff, bulbs[col][row].x, bulbs[col][row].y);
+		bulbSurface.endDraw();
 	}
 	
 	void drawSurface() {
@@ -37,35 +51,32 @@ public class LEDSurface {
 		drawAnimations();
 	}
 	
-	void drawBackground() {
-		for(int row = 0; row < height; row++) {
-			for(int col = 0; col < width; col++) {
-				p.image(bulbs[col][row].bulbOff, bulbs[col][row].x + location.x, bulbs[col][row].y + location.y);
-			}
-		}
+	private void drawBackground() {
+		parent.image(bulbSurface, location.x, location.y);
 	}
 	
-	void drawAnimations() {
-		int x, y; 
+	private void drawAnimations() {
 		for(LEDAnimation animation : ledAnimations) {
 			animation.update();
 			for(Vector ledVector : animation.ledObject.onOffArray) {
-				if(onSurface(ledVector)) {
-					x = (int)ledVector.x;
-					y = (int)ledVector.y;
-					p.image(bulbs[x][y].bulbOn, bulbs[x][y].x + location.x, bulbs[x][y].y + location.y);
+				int x = (int)ledVector.x;
+				int y = (int)ledVector.y;
+				if(onSurface(x, y)) {
+					int bulbOnX = (int)(bulbs[x][y].x + location.x);
+					int bulbOnY = (int)(bulbs[x][y].y + location.y);
+					parent.image(bulbs[x][y].bulbOn, bulbOnX, bulbOnY);
 				}
-					
 			}
 		}
 	}
 	
-	boolean onSurface(Vector vector) {
-		if(vector.x >= 0 && vector.x < width)
-			if(vector.y >= 0 && vector.y < height)
+	private boolean onSurface(int x, int y) {
+		if(x >= 0 && x < bulbGridDim.width)
+			if(y >= 0 && y < bulbGridDim.height)
 				return true;
 		return false;
 	}
+	
 	
 	void addAnimation(LEDAnimation animation) {
 		ledAnimations.add(animation);
